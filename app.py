@@ -1,42 +1,41 @@
 import streamlit as st
-from PIL import Image
 import google.generativeai as genai
+from PIL import Image
 
-# Configuração limpa
-st.set_page_config(page_title="Analista Profit Pro", layout="centered")
-
-# Busca a chave nos Secrets
-api_key = st.secrets.get("GEMINI_API_KEY")
-
-if not api_key:
-    st.error("Configure GEMINI_API_KEY nos Secrets do Streamlit.")
+# Tenta configurar a chave
+if "GEMINI_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 else:
-    genai.configure(api_key=api_key)
+    st.error("Configure GEMINI_API_KEY nos Secrets.")
 
 st.title("📊 Analisador de Setup - Mini Índice")
 
-uploaded_file = st.file_uploader("Suba o print do seu Profit Pro", type=["png", "jpg", "jpeg"])
+uploaded_file = st.file_uploader("Suba o print do Profit Pro", type=["png", "jpg", "jpeg"])
 
 if uploaded_file:
     image = Image.open(uploaded_file)
-    st.image(image, caption="Gráfico Carregado")
+    st.image(image)
 
     if st.button("Analisar Setup"):
         try:
-            # TENTATIVA COM O MODELO PRO (MAIS ESTÁVEL PARA VISÃO)
-            model = genai.GenerativeModel('gemini-1.5-pro')
+            # FORÇA O USO DO MODELO SEM PREFIXOS OU SUFIXOS
+            # Se o flash falhar, ele tenta o pro automaticamente
+            model_name = 'gemini-1.5-flash'
+            model = genai.GenerativeModel(model_name)
             
-            prompt = "Analise o MACD, Disciplina e APForceTrend. Dê o veredito: COMPRA, VENDA ou AGUARDAR."
-            
-            response = model.generate_content([prompt, image])
+            # Comando direto
+            response = model.generate_content([
+                "Analise o MACD, Disciplina e APForceTrend. Dê o veredito: COMPRA, VENDA ou AGUARDAR.",
+                image
+            ])
             st.success(response.text)
             
-        except Exception:
+        except Exception as e:
+            # SE O ERRO 404 APARECER, ELE TENTA UMA SEGUNDA OPÇÃO
             try:
-                # SE O PRO FALHAR, TENTA O FLASH COM CAMINHO COMPLETO
-                model = genai.GenerativeModel('models/gemini-1.5-flash')
-                response = model.generate_content([prompt, image])
+                model = genai.GenerativeModel('gemini-1.5-pro')
+                response = model.generate_content(["Analise o setup.", image])
                 st.success(response.text)
-            except Exception as e:
-                st.error(f"Erro persistente na API: {e}")
-                st.info("Dica: Verifique se sua chave no AI Studio tem permissão para 'Gemini 1.5 Flash'.")
+            except Exception as e2:
+                st.error(f"Erro persistente: {e2}")
+                st.info("Dica técnica: Verifique se sua chave tem faturamento configurado no AI Studio, mesmo no nível gratuito.")
