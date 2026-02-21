@@ -19,8 +19,8 @@ if uploaded_file is not None:
     
     if st.button('Analisar Agora'):
         try:
-            # MODELO AJUSTADO: Usando gemini-pro-vision para suporte a imagens
-            model = genai.GenerativeModel('gemini-pro-vision')
+            # MODELO AJUSTADO: Usando gemini-1.0-pro-vision para suporte a imagens
+            model = genai.GenerativeModel('gemini-1.0-pro-vision')
             
             prompt = """
             Analise esta imagem do Profit Pro com o setup Gemini/APForce:
