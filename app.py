@@ -29,7 +29,7 @@ if uploaded_file is not None:
     
     if st.button('Analisar Setup'):
         with st.spinner('Analisando com IA...'):
-            model = genai.GenerativeModel('gemini-1.5-flash-8b')
+            model = genai.GenerativeModel('gemini-1.5-flash')
             
             # O "Cérebro" do setup configurado para você
             prompt = """
