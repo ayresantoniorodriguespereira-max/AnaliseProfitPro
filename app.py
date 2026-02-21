@@ -22,7 +22,7 @@ if uploaded_file is not None:
     if st.button('Analisar Agora'):
         try:
             # Usando a versão estável mais compatível
-            model = genai.GenerativeModel(model_name="models/gemini-1.5-flash")
+            model = genai.GenerativeModel('models/gemini-1.5-flash-latest')
             
             prompt = """
             Analise esta imagem do Profit Pro com o setup Gemini/APForce:
