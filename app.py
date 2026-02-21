@@ -1,19 +1,18 @@
 import streamlit as st
 from PIL import Image
 import google.generativeai as genai
-import os
-from dotenv import load_dotenv
 
-# Carrega variáveis de ambiente
-load_dotenv()
+# Tenta carregar a chave dos secrets de forma segura
+if "GEMINI_API_KEY" in st.secrets:
+    genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+else:
+    st.error("Chave de API não encontrada nos Secrets!")
 
-# Configuração da chave de API (use variável de ambiente para segurança)
-api_key = os.getenv("GEMINI_API_KEY") or st.secrets.get("GEMINI_API_KEY")
-if not api_key:
-    st.error("❌ Chave de API não encontrada. Configure GEMINI_API_KEY nas variáveis de ambiente ou em st.secrets")
-    st.stop()
-
-genai.configure(api_key=api_key)
+# Força o uso da versão estável do modelo de visão
+try:
+    model = genai.GenerativeModel('gemini-1.5-flash-latest')
+except Exception as e:
+    st.error(f"Erro ao carregar o modelo: {e}")
 
 st.set_page_config(page_title="Analista Gemini - Trader", layout="centered")
 
@@ -29,7 +28,6 @@ if uploaded_file is not None:
     
     if st.button('Analisar Setup'):
         with st.spinner('Analisando com IA...'):
-            model = genai.GenerativeModel('gemini-1.5-flash')
             
             # O "Cérebro" do setup configurado para você
             prompt = """
